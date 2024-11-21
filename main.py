@@ -201,6 +201,7 @@ class RTE:
         @enum.unique
         class Category(enum.Enum):
             SOURCE = "source"
+            HEADER = "header"
 
         attr: Attribute
         category: Category
@@ -280,7 +281,8 @@ def text(element: etree.ElementBase, name: str, is_attribute: bool = False, null
 
     if (not value) and nullable:
         return None
-
+    if value[0].text is None:
+        return ""
     if len(value) != 1:
         raise ValueError(f"Only one '{name}' tag per tree is supported, {len(value)}  found")
     return value[0].text
@@ -613,6 +615,8 @@ class UVisionProject:
                 file_type = FileType.CPP_SOURCE
             elif filename.endswith(".h"):
                 file_type = FileType.TEXT_DOCUMENT
+            elif filename.endswith(".hpp"):
+                file_type = FileType.TEXT_DOCUMENT
             else:
                 warnings.warn(f"Unknown RTE file type '{file.instance}': {file}")
                 continue
@@ -657,6 +661,8 @@ class UVisionProject:
                     lang = Language.ASM
                 elif file.type == FileType.C_SOURCE:
                     lang = Language.C
+                elif file.type == FileType.CPP_SOURCE:
+                    lang = Language.CPP
                 elif file.type == FileType.TEXT_DOCUMENT:
                     lang = None
                 else:
